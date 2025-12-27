@@ -125,8 +125,10 @@ class Hentai2Read : ParsedHttpSource() {
     // If the user wants to search by a sort order other than alphabetical, we have to make another call
     private fun parseSearch(response: Response, page: Int, sortOrder: String?): MangasPage {
         val document = if (page == 1 && sortOrder != null) {
-            response.asJsoup().select("li.dropdown li:contains($sortOrder) a").first()!!.attr("abs:href")
-                .let { client.newCall(GET(it, headers)).execute().asJsoup() }
+            val doc = response.asJsoup()
+            doc.select("li.dropdown a[href*=$sortOrder]").firstOrNull()?.attr("abs:href")
+                ?.let { client.newCall(GET(it, headers)).execute().asJsoup() }
+                ?: doc
         } else {
             response.asJsoup()
         }
@@ -307,8 +309,8 @@ class Hentai2Read : ParsedHttpSource() {
 
     private fun getSortOrder() = arrayOf(
         Pair("Alphabetical", null),
-        Pair("Most Popular", "most popular"),
-        Pair("Last Updated", "last updated"),
+        Pair("Most Popular", "most-popular"),
+        Pair("Last Updated", "last-updated"),
     )
 
     // Categories : 27
