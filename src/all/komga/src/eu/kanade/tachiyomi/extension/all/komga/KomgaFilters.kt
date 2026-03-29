@@ -85,10 +85,8 @@ internal open class UriMultiSelectFilter(
 ) : Filter.Group<UriMultiSelectOption>(name, genres),
     UriFilter {
     override fun addToUri(builder: HttpUrl.Builder) {
-        val whatToInclude = state.filter { it.state }.map { it.id }
-
-        if (whatToInclude.isNotEmpty()) {
-            builder.addQueryParameter(param, whatToInclude.joinToString(","))
+        state.filter { it.state }.forEach {
+            builder.addQueryParameter(param, it.id)
         }
     }
 }

@@ -150,7 +150,7 @@ open class Komga(private val suffix: String = "") :
         val defaultLibraries = defaultLibraries
 
         if (filterList.filterIsInstance<LibraryFilter>().isEmpty() && defaultLibraries.isNotEmpty()) {
-            url.addQueryParameter("library_id", defaultLibraries.joinToString(","))
+            defaultLibraries.forEach { url.addQueryParameter("library_id", it) }
         }
 
         filterList.forEach { filter ->
