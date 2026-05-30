@@ -1,8 +1,10 @@
 ext {
-    extName = 'Pizzaria Scan'
+    extName = 'PizzariaScan'
     extClass = '.Pizzariascan'
-    extVersionCode = 47
+    themePkg = 'mangawork'
+    baseUrl = 'https://pizzariacomics.com'
+    overrideVersionCode = 47
     isNsfw = true
 }
 
-apply from: "$rootDir/common.gradle"
+apply plugin: "kei.plugins.extension.legacy"

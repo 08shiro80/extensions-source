@@ -9,11 +9,12 @@ import eu.kanade.tachiyomi.source.model.SChapter
 import eu.kanade.tachiyomi.source.model.SManga
 import eu.kanade.tachiyomi.source.online.HttpSource
 import eu.kanade.tachiyomi.util.asJsoup
+import keiyoushi.utils.extractNextJs
 import keiyoushi.utils.parseAs
-import kotlinx.serialization.Serializable
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Request
 import okhttp3.Response
+import java.io.IOException
 
 class PlumaComics : HttpSource() {
 
@@ -109,24 +110,21 @@ class PlumaComics : HttpSource() {
 
     override fun pageListParse(response: Response): List<Page> {
         val document = response.asJsoup()
-        return document.select("#chapter-pages img").mapIndexed { index, element ->
-            Page(index, imageUrl = element.absUrl("src"))
+        val chapter = document.extractNextJs<ChapterDto>() ?: throw IOException("Capítulo não encontrado")
+
+        val response = client.newCall(
+            GET(
+                "$baseUrl/api/viewer/bootstrap?c=${chapter.chapterId}",
+                headers,
+            ),
+        ).execute()
+
+        val pages = response.parseAs<PagesList>()
+
+        return pages.pages.map { page ->
+            Page(page.i, imageUrl = "$baseUrl/${page.u}")
         }
     }
 
     override fun imageUrlParse(response: Response): String = ""
-
-    // Utils
-
-    @Serializable
-    private class SearchDto(
-        val results: List<MangaDto>,
-    )
-
-    @Serializable
-    private class MangaDto(
-        val title: String,
-        val slug: String,
-        val coverPath: String,
-    )
 }
